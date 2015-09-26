@@ -251,18 +251,17 @@ update_config() {
     unzip -d $PIA_CONFIG_DIR -q $PIA_CONFIG_DIR/openvpn.zip
 
     # Replace space by underscore in filenames
-    local ifs_bak=$IFS
-    IFS=$(echo -en "\n\b")
-    for ovpn in "$PIA_CONFIG_DIR"/*.ovpn; do
-        # Rename files so that do not contain spaces
-        ovpn_spaceless=$(sed 's/ /_/g' <<< "$ovpn")
-        if [[ "$ovpn" != "$ovpn_spaceless" ]]; then
-            mv "$ovpn" "$ovpn_spaceless"
-        fi
-        # Append up/down scripts to every ovpn file
-        cat "$PIA_COMMON_CONFIG"  >> "$ovpn_spaceless"
+    result=0
+    while [ $result -eq 0 ]; do
+	# returns 0 if all rename operations successful. Multiple
+	# renames required to account for multiple spaces per
+	# filename.
+	rename ' ' '_' "$PIA_CONFIG_DIR"/*.ovpn
+	result=$?
     done
-    IFS=$ifs_bak
+
+    # Append up/down scripts to every ovpn file
+    cat "$PIA_COMMON_CONFIG" | tee -a "$PIA_CONFIG_DIR"/*.ovpn
 
     # Extract server addresses and resolve hosts
     grep -h "remote " "$PIA_CONFIG_DIR"/*.ovpn | cut -d ' ' -f 2 \
