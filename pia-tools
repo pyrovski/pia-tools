@@ -241,7 +241,7 @@ setup() {
 
 update_config() {
     echo -n 'Updating configuration... '
-    local ovpn ovpn_spaceless
+    local ovpn ovpn_spaceless result
 
     # Clean up
     rm -f $PIA_CONFIG_DIR/ca.crt $PIA_CONFIG_DIR/*.ovpn
